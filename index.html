@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排行榜小遊戲</title>
+    <link rel="icon" type="image/svg+xml" href="/AI-hideGame/vite.svg" />
+  <script type="module" crossorigin src="/AI-hideGame/assets/index-DPml7ZGc.js"></script>
+  <link rel="stylesheet" crossorigin href="/AI-hideGame/assets/index-D6m9WDyY.css">
+</head>
+<body>
+    <div id="app"></div>
+    <!-- 遊戲結束與排行榜畫面 -->
+    <div id="leaderboard-container"
+      style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); color: white; text-align: center; padding-top: 50px; font-family: Arial, sans-serif;">
+      <h1>排行榜</h1>
+      <div id="nickname-input-section">
+        <p>你的分數: <span id="final-score">0</span></p>
+        <input type="text" id="nickname-input" placeholder="輸入你的暱稱" maxlength="10">
+        <button id="submit-score">提交</button>
+      </div>
+      <div id="leaderboard-display-section" style="margin-top: 20px;">
+        <h2>前 10 名</h2>
+        <ol id="leaderboard-list"
+          style="list-style-position: inside; padding: 0; display: inline-block; text-align: left;"></ol>
+        <p id="current-player-rank" style="margin-top: 20px;"></p>
+      </div>
+      <div style="margin-top: 20px;">
+        <button id="restart-button">重新開始</button>
+      </div>
+    </div>
+</body>
+</html>
