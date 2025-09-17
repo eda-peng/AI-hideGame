@@ -4,6 +4,11 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, updateDoc } from "firebase/firestore";
 import './style.css'
 
+// --- 引入圖片資源 ---
+import dogImg from '/picture/dog.png';
+import catImg from '/picture/cat.png';
+import penguinImg from '/picture/penguin.png';
+
 // --- Firebase 設定 ---
 // 請將這裡換成您自己的 Firebase 設定
 const firebaseConfig = {
@@ -31,6 +36,7 @@ const app = new PIXI.Application();
   let player;
   let scoreMultiplier = 1; // 分數倍率
   let gameOver = true; // 遊戲一開始是結束狀態，等待角色選擇
+  let selectedCharacterName = ''; // 儲存選擇的角色名稱
   let gameStarted = false; // 遊戲是否已開始
 
   // 啟用互動
@@ -64,9 +70,9 @@ const app = new PIXI.Application();
 
   // 定義角色及其屬性 (路徑, 大小, 分數倍率)
   const characters = [
-    { path: '/picture/dog.png', size: 40, multiplier: 1, name: '狗狗 (簡單)' },
-    { path: '/picture/cat.png', size: 50, multiplier: 1.2, name: '貓咪 (普通)' },
-    { path: '/picture/penguin.png', size: 60, multiplier: 1.5, name: '企鵝 (困難)' },
+    { path: dogImg, size: 40, multiplier: 1, name: '狗狗 (簡單)' },
+    { path: catImg, size: 50, multiplier: 1.2, name: '貓咪 (普通)' },
+    { path: penguinImg, size: 60, multiplier: 1.5, name: '企鵝 (困難)' },
   ];
 
   const characterChoices = [];
@@ -101,7 +107,7 @@ const app = new PIXI.Application();
     choice.height = 60;
 
     container.on('pointerdown', () => {
-      startGame(texture, charData.size, charData.multiplier);
+      startGame(texture, charData.size, charData.multiplier, charData.name);
     });
 
     container.addChild(frame);
@@ -111,7 +117,7 @@ const app = new PIXI.Application();
   }
 
   // 開始遊戲的函式
-  function startGame(playerTexture, playerSize, multiplier) {
+  function startGame(playerTexture, playerSize, multiplier, charName) {
     // 建立玩家
     player = new PIXI.Sprite(playerTexture);
     player.anchor.set(0.5);
@@ -125,6 +131,7 @@ const app = new PIXI.Application();
 
     // 設定分數倍率
     scoreMultiplier = multiplier;
+    selectedCharacterName = charName; // 儲存角色名稱
 
     // 移除選擇畫面
     app.stage.removeChild(selectionContainer);
@@ -291,12 +298,13 @@ const app = new PIXI.Application();
     const finalScore = Math.floor(score);
     const defaultName = "躲貓貓天才";
 
-    // 自動儲存預設成績
+    // 自動儲存成績，包含新欄位
     try {
       const docRef = await addDoc(leaderboardCol, {
         name: defaultName,
         score: finalScore,
-        createdAt: new Date()
+        character: selectedCharacterName, // 新增角色欄位
+        createdAt: formatTimestamp(new Date()) // 新增格式化時間欄位
       });
       // 顯示排行榜和輸入畫面，並傳入新紀錄的 ID
       showLeaderboard(docRef.id, finalScore, defaultName);
@@ -306,6 +314,18 @@ const app = new PIXI.Application();
       showLeaderboard(null, finalScore, defaultName);
     }
   }
+
+  // --- 時間格式化函式 ---
+  function formatTimestamp(date) {
+    const Y = date.getFullYear();
+    const M = String(date.getMonth() + 1).padStart(2, '0');
+    const D = String(date.getDate()).padStart(2, '0');
+    const h = String(date.getHours()).padStart(2, '0');
+    const m = String(date.getMinutes()).padStart(2, '0');
+    return `${Y}/${M}/${D} ${h}:${m}`;
+  }
+
+
 
   // --- 排行榜相關函式 ---
   async function showLeaderboard(docId, finalScore, currentName) {
@@ -363,8 +383,14 @@ const app = new PIXI.Application();
       // 顯示前 10 名
       leaderboardList.innerHTML = '';
       allScores.slice(0, 10).forEach((entry, index) => {
-        const li = document.createElement('li');
-        li.textContent = `${entry.name} - ${entry.score}`;
+        const li = document.createElement('li'); // 建立 li 元素
+        // 使用 innerHTML 插入帶有 class 的 span 元素
+        li.innerHTML = `
+          <span class="rank">${index + 1}.</span>
+          <span class="name">${entry.name}</span>
+          <span class="score">${entry.score}</span>
+          <span class="details">(${entry.character}) - ${entry.createdAt}</span>
+        `;
         leaderboardList.appendChild(li);
       });
 
@@ -375,7 +401,7 @@ const app = new PIXI.Application();
         const currentPlayerIndex = allScores.findIndex(entry => entry.score === currentScore && entry.name === currentNickname);
         
         if (currentPlayerIndex !== -1) {
-          currentPlayerRankP.textContent = `你的名次: ${currentPlayerIndex + 1} (共 ${allScores.length} 名)`;
+          currentPlayerRankP.textContent = `你的名次: 第 ${currentPlayerIndex + 1} 名 (共 ${allScores.length} 名)`;
         }
       }
     }
