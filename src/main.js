@@ -4,11 +4,6 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, updateDoc } from "firebase/firestore";
 import './style.css'
 
-// --- 引入圖片資源 ---
-import dogImg from '/picture/dog.png';
-import catImg from '/picture/cat.png';
-import penguinImg from '/picture/penguin.png';
-
 // --- Firebase 設定 ---
 // 請將這裡換成您自己的 Firebase 設定
 const firebaseConfig = {
@@ -70,9 +65,9 @@ const app = new PIXI.Application();
 
   // 定義角色及其屬性 (路徑, 大小, 分數倍率)
   const characters = [
-    { path: dogImg, size: 40, multiplier: 1, name: '狗狗 (簡單)' },
-    { path: catImg, size: 50, multiplier: 1.2, name: '貓咪 (普通)' },
-    { path: penguinImg, size: 60, multiplier: 1.5, name: '企鵝 (困難)' },
+    { path: `${import.meta.env.BASE_URL}picture/dog.png`, size: 40, multiplier: 1, name: '狗狗 (簡單)' },
+    { path: `${import.meta.env.BASE_URL}picture/cat.png`, size: 50, multiplier: 1.2, name: '貓咪 (普通)' },
+    { path: `${import.meta.env.BASE_URL}picture/penguin.png`, size: 60, multiplier: 1.5, name: '企鵝 (困難)' },
   ];
 
   const characterChoices = [];
