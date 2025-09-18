@@ -1,0 +1,1 @@
+*{padding:0;margin:0}#leaderboard-list li{display:flex;justify-content:flex-start;align-items:center;padding:4px 0;font-family:Courier New,Courier,monospace;white-space:nowrap}.rank{width:40px;text-align:right;margin-right:10px}.name{width:150px;overflow:hidden;text-overflow:ellipsis}.score{width:80px;text-align:right;margin-right:10px}.details{color:#ccc;font-size:.9em}
