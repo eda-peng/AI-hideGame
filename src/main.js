@@ -26,6 +26,13 @@ const app = new PIXI.Application();
 (async () => {
   await app.init({ background: '#1099bb', resizeTo: window });
   document.body.appendChild(app.view);
+
+  // --- 比例縮放 ---
+  // 我們設定一個基準寬度，所有物件的大小都將根據當前畫布寬度與基準寬度的比例進行縮放
+  const BASE_WIDTH = 800; // 基準寬度
+  const BASE_HEIGHT = 600; // 基準高度
+  // 基於面積計算縮放因子，以保持物件在不同長寬比螢幕上的視覺大小一致
+  const scaleFactor = Math.sqrt((app.screen.width * app.screen.height) / (BASE_WIDTH * BASE_HEIGHT));
   
   // 遊戲變數
   let player;
@@ -57,49 +64,49 @@ const app = new PIXI.Application();
   background.fill();
   selectionContainer.addChild(background);
 
-  const titleText = new PIXI.Text({ text: '選擇你的角色', style: { fill: 'white', fontSize: 36, align: 'center' } });
+  const titleText = new PIXI.Text({ text: '選擇你的角色', style: { fill: 'white', fontSize: 36 * scaleFactor, align: 'center' } });
   titleText.anchor.set(0.5);
   titleText.x = app.screen.width / 2;
-  titleText.y = app.screen.height / 2 - 100;
+  titleText.y = app.screen.height / 2 - (100 * scaleFactor);
   selectionContainer.addChild(titleText);
 
   // 定義角色及其屬性 (路徑, 大小, 分數倍率)
-  const characters = [
-    { path: `${import.meta.env.BASE_URL}picture/dog.png`, size: 40, multiplier: 1, name: '狗狗 (簡單)' },
-    { path: `${import.meta.env.BASE_URL}picture/cat.png`, size: 50, multiplier: 1.2, name: '貓咪 (普通)' },
-    { path: `${import.meta.env.BASE_URL}picture/penguin.png`, size: 60, multiplier: 1.5, name: '企鵝 (困難)' },
+  const characterData = [
+    { path: `${import.meta.env.BASE_URL}picture/dog.png`, size: 40 * scaleFactor, multiplier: 1, name: '狗狗 (簡單)' },
+    { path: `${import.meta.env.BASE_URL}picture/cat.png`, size: 50 * scaleFactor, multiplier: 1.2, name: '貓咪 (普通)' },
+    { path: `${import.meta.env.BASE_URL}picture/penguin.png`, size: 60 * scaleFactor, multiplier: 1.5, name: '企鵝 (困難)' },
   ];
 
   const characterChoices = [];
-  for (let i = 0; i < characters.length; i++) {
-    const charData = characters[i];
+  for (let i = 0; i < characterData.length; i++) {
+    const charData = characterData[i];
     const container = new PIXI.Container(); // 為每個選項建立一個容器
 
     const texture = await PIXI.Assets.load(charData.path);
     const choice = new PIXI.Sprite(texture);
     const frame = new PIXI.Graphics();
-    const frameWidth = 80;
-    const frameHeight = 80;
+    const frameWidth = 80 * scaleFactor;
+    const frameHeight = 80 * scaleFactor;
 
     // 繪製框框
-    frame.roundRect(0, 0, frameWidth, frameHeight, 10);
+    frame.roundRect(0, 0, frameWidth, frameHeight, 10 * scaleFactor);
     frame.fill({ color: 0x333333, alpha: 0.8 });
     frame.stroke({ width: 2, color: 0xffffff });
 
     // 角色名稱文字
-    const nameText = new PIXI.Text({ text: charData.name, style: { fill: 'white', fontSize: 16 } });
+    const nameText = new PIXI.Text({ text: charData.name, style: { fill: 'white', fontSize: 16 * scaleFactor } });
     nameText.anchor.set(0.5);
     nameText.y = frameHeight / 2 + 25;
 
-    container.x = app.screen.width / 2 + (i - 1) * 150; // 增加選項間距
+    container.x = app.screen.width / 2 + (i - 1) * 150 * scaleFactor; // 增加選項間距
     container.y = app.screen.height / 2;
     container.interactive = true;
     container.cursor = 'pointer';
 
     // --- 調整角色圖案大小 ---
     choice.anchor.set(0.5);
-    choice.width = 60; // 將圖案縮小以放入框內
-    choice.height = 60;
+    choice.width = 60 * scaleFactor; // 將圖案縮小以放入框內
+    choice.height = 60 * scaleFactor;
 
     container.on('pointerdown', () => {
       startGame(texture, charData.size, charData.multiplier, charData.name);
@@ -147,9 +154,9 @@ const app = new PIXI.Application();
 
   // 定義障礙物類型
   const obstacleTypes = {
-    type1: { size: 40, speed: 2.5, color: 0xff0000 }, // 普通
-    type2: { size: 20, speed: 5, color: 0xffff00 },   // 小而快 (黃色)
-    type3: { size: 80, speed: 1.5, color: 0x800080 }, // 大而慢 (紫色)
+    type1: { size: 40 * scaleFactor, speed: 2.5 * scaleFactor, color: 0xff0000 }, // 普通
+    type2: { size: 20 * scaleFactor, speed: 5 * scaleFactor, color: 0xffff00 },   // 小而快 (黃色)
+    type3: { size: 80 * scaleFactor, speed: 1.5 * scaleFactor, color: 0x800080 }, // 大而慢 (紫色)
   };
 
   // 建立障礙物的函數
@@ -206,13 +213,13 @@ const app = new PIXI.Application();
 
   // 分數 (計時器)
   let score = 0;
-  const scoreText = new PIXI.Text({ text: `Score: 0`, style: { fill: 'white', fontSize: 24 } });
+  const scoreText = new PIXI.Text({ text: `Score: 0`, style: { fill: 'white', fontSize: 24 * scaleFactor } });
   scoreText.x = 10;
   scoreText.y = 10;
   app.stage.addChild(scoreText);
 
   // 遊戲結束文字
-  const gameOverText = new PIXI.Text({ text: `Game Over!`, style: { fill: 'white', fontSize: 48, align: 'center' } });
+  const gameOverText = new PIXI.Text({ text: `Game Over!`, style: { fill: 'white', fontSize: 48 * scaleFactor, align: 'center' } });
   gameOverText.anchor.set(0.5);
   gameOverText.x = app.screen.width / 2;
   gameOverText.y = app.screen.height / 2;
